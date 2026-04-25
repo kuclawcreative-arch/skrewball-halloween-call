@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Skrewball 萬聖節叛逆來電</title>
+  <style>
+    /* 
+      視覺參考 Behance: 帶有插畫感、復古色塊、高對比的萬聖節風格 
+      品牌色：Skrewball 花生醬棕 (#A67C52) / 黑 (#000000) / 萬聖橘 (#FF5A00) / 奶茶白 (#F5F0EA)
+    */
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
+
+    body { 
+      margin: 0; 
+      background: #F5F0EA; 
+      color: #000; 
+      font-family: 'Noto Sans TC', sans-serif; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      height: 100vh; 
+      overflow: hidden; 
+    }
+    
+    #phone { 
+      width: 375px; 
+      height: 812px; 
+      max-height: 100vh; 
+      background: #111; 
+      border: 4px solid #A67C52; 
+      border-radius: 40px; 
+      overflow: hidden; 
+      position: relative; 
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5); 
+    }
+
+    #phone::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: radial-gradient(#FF5A00 1px, transparent 1px);
+      background-size: 4px 4px;
+      opacity: 0.1;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .screen { 
+      display: none; 
+      flex-direction: column; 
+      justify-content: center; 
+      align-items: center; 
+      height: 100%; 
+      padding: 30px; 
+      text-align: center; 
+      box-sizing: border-box; 
+      position: relative;
+      z-index: 1;
+    }
+    
+    .active { display: flex; }
+
+    .brand-logo-img {
+      width: 180px;
+      margin-bottom: 20px;
+      filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.2));
+    }
+
+    h1 { 
+      color: #FF5A00; 
+      font-size: 32px; 
+      font-weight: 900;
+      text-transform: uppercase; 
+      margin-bottom: 10px; 
+      line-height: 1.2;
+      text-shadow: 2px 2px 0px #A67C52; 
+      letter-spacing: 2px;
+    }
+    
+    p { 
+      color: #F5F0EA; 
+      font-size: 16px; 
+      line-height: 1.6; 
+      font-weight: 400;
+    }
+
+    .btn { 
+      background: #A67C52; 
+      border: 3px solid #000; 
+      color: #000; 
+      padding: 15px 20px; 
+      font-size: 18px; 
+      font-weight: 900; 
+      border-radius: 12px; 
+      cursor: pointer; 
+      transition: 0.2s; 
+      margin-top: 15px; 
+      width: 100%; 
+      max-width: 280px; 
+      box-shadow: 4px 4px 0px #FF5A00; 
+    }
+    .btn:hover, .btn:active { 
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px #FF5A00;
+    }
+
+    .btn-record { 
+      background: #111;
+      border-color: #FF5A00; 
+      color: #FF5A00; 
+      border-radius: 50px; 
+      height: 80px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      user-select: none; 
+      -webkit-user-select: none; 
+      font-size: 22px;
+      box-shadow: 0 0 20px rgba(255,90,0,0.4);
+    }
+    .btn-record.recording { 
+      background: #FF5A00; 
+      color: #000; 
+      border-color: #000;
+      box-shadow: 0 0 30px rgba(255,90,0,0.8); 
+      animation: pulse 1.5s infinite; 
+    }
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+    .visualizer { display: flex; gap: 8px; height: 60px; align-items: center; margin-top: 40px; }
+    .bar { width: 12px; background: #FF5A00; border: 2px solid #000; border-radius: 4px; animation: bounce 0.5s infinite ease-in-out alternate; }
+    .bar:nth-child(even) { background: #A67C52; }
+    .bar:nth-child(2) { animation-delay: 0.1s; } .bar:nth-child(3) { animation-delay: 0.2s; } .bar:nth-child(4) { animation-delay: 0.3s; } .bar:nth-child(5) { animation-delay: 0.4s; }
+    @keyframes bounce { from { height: 15px; } to { height: 60px; } }
+
+    .call-avatar { 
+      width: 150px; 
+      height: 150px; 
+      border-radius: 50%; 
+      border: 4px solid #FF5A00; 
+      margin-bottom: 20px; 
+      background-color: #000; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      font-size: 60px;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 0 30px rgba(255,90,0,0.4);
+      background-image: url('assets/skrewball_logo.png'); 
+      background-size: 250%; 
+      background-position: center top -15px; 
+      background-repeat: no-repeat;
+    }
+
+    .chat-bubble {
+      background: #F5F0EA;
+      border: 4px solid #000;
+      padding: 20px;
+      border-radius: 20px;
+      border-bottom-left-radius: 0;
+      margin-top: 20px;
+      min-height: 150px;
+      width: 100%;
+      box-sizing: border-box;
+      position: relative;
+      box-shadow: 4px 4px 0px #A67C52;
+    }
+    .chat-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: -20px;
+      border-width: 20px 20px 0 0;
+      border-style: solid;
+      border-color: #000 transparent transparent transparent;
+      display: block;
+      width: 0;
+    }
+    .chat-bubble p {
+      color: #000;
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0;
+      text-align: left;
+    }
+
+    .coupon { 
+      border: 4px dashed #FF5A00; 
+      background: #1a1a1a; 
+      padding: 20px; 
+      border-radius: 15px; 
+      margin: 20px 0; 
+      color: #F5F0EA;
+      box-shadow: 4px 4px 0px #A67C52;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    
+    .tag {
+      background: #A67C52;
+      color: #000;
+      padding: 4px 10px;
+      font-weight: 900;
+      font-size: 12px;
+      border: 2px solid #000;
+      transform: rotate(-5deg);
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div id="phone">
+
+    <!-- 前導故事入口 -->
+    <div id="screen-intro" class="screen active">
+      <img src="assets/skrewball_logo.png" style="width:150px; margin-bottom: 30px; mix-blend-mode: screen;" alt="Skrewball Logo">
+      <h1 style="color:#F5F0EA; font-size: 36px; text-shadow: 2px 2px 0px #FF5A00; margin-bottom: 5px;">萬聖節</h1>
+      <h1 style="color:#A67C52; font-size: 28px; text-shadow: none;">叛逆來電企劃</h1>
+      <button class="btn" style="background:#FF5A00; color:#000; margin-top: 50px; padding: 20px 40px; font-size: 20px; border-radius: 50px;" onclick="nav('screen-story-1')">▶ 開始體驗</button>
+    </div>
+
+    <!-- Screen: Story 1 -->
+    <div id="screen-story-1" class="screen" style="padding: 0; justify-content: flex-start;">
+      <!-- 滿版圖片區塊 -->
+      <div style="width: 100%; height: 55%; background-image: url('assets/skrewball_story_1_pop.png'); background-size: cover; background-position: center; border-bottom: 6px solid #000; position: relative;">
+        <div class="tag" style="position: absolute; bottom: -20px; left: 20px; z-index: 10;">ORIGIN OF THE BLACK SHEEP</div>
+      </div>
+      <!-- 文案區塊 -->
+      <div style="padding: 30px; text-align: left; width: 100%; box-sizing: border-box; background: #111;">
+        <h1 style="font-size: 26px; margin-bottom: 20px; color: #FF5A00; text-shadow: none; letter-spacing: 1px;">威士忌加花生醬？<br>這太荒謬了。</h1>
+        <p style="font-size: 15px; margin-top: 0; color: #fff; font-weight: 400; line-height: 1.8;">一開始，沒有人看好這瓶酒。<br>在那個只喝純威士忌的無聊年代，<strong style="color:#FF5A00;">Skrewball</strong> 就像一隻不合群的黑羊。<br><br>但我們不在乎。<br>因為最好玩的事，往往從打破規矩開始。</p>
+        <button class="btn" style="margin-top: 15px;" onclick="nav('screen-story-2')">下一頁 ❯</button>
+      </div>
+    </div>
+
+    <!-- Screen: Story 2 -->
+    <div id="screen-story-2" class="screen" style="padding: 0; justify-content: flex-start;">
+      <!-- 滿版圖片區塊 -->
+      <div style="width: 100%; height: 55%; background-image: url('assets/skrewball_story_2_pop.png'); background-size: cover; background-position: center; border-bottom: 6px solid #000; position: relative;">
+        <div class="tag" style="position: absolute; bottom: -20px; left: 20px; z-index: 10;">HALLOWEEN REBELLION</div>
+      </div>
+      <!-- 文案區塊 -->
+      <div style="padding: 30px; text-align: left; width: 100%; box-sizing: border-box; background: #111;">
+        <h1 style="font-size: 26px; margin-bottom: 20px; color: #FF5A00; text-shadow: none; letter-spacing: 1px;">白天當社畜<br>今晚當惡魔</h1>
+        <p style="font-size: 15px; margin-top: 0; color: #fff; font-weight: 400; line-height: 1.8;">年輕人為什麼愛萬聖節？<br>因為這是一年之中，唯一可以<strong style="color:#FF5A00;">合法撕下面具、釋放內心怪物</strong>的日子。<br><br>不當乖寶寶、不鳥 KPI。<br>今晚，我們只做自己。</p>
+        <button class="btn" style="margin-top: 15px;" onclick="nav('screen-home')">進入黑羊協議 ❯</button>
+      </div>
+    </div>
+
+    <!-- Screen 1: Welcome -->
+    <div id="screen-home" class="screen">
+      <div class="tag">WARNING: REBEL ONLY</div>
+      <img src="assets/skrewball_logo.png" class="brand-logo-img" alt="Skrewball Logo" style="mix-blend-mode: screen;">
+      
+      <h1>釋放你的<br>黑羊分身</h1>
+      <p style="margin-top: 10px;">乖寶寶面具戴累了嗎？<br><br>長大就是一場荒謬的鬧劇。<br>交出你的抱怨，讓 AI 幫你打一通沒人敢打的電話。</p>
+      <button class="btn" style="margin-top: 40px;" onclick="nav('screen-record')">😈 啟動黑羊協議</button>
+    </div>
+
+    <!-- Screen 2: Record -->
+    <div id="screen-record" class="screen">
+      <img src="assets/skrewball_logo.png" style="width:100px; margin-bottom: 20px; opacity: 0.5; mix-blend-mode: screen;" alt="Skrewball Logo">
+      <h1 style="color:#F5F0EA; text-shadow:none;">語音採集</h1>
+      <p style="margin-bottom: 30px; color:#A67C52;">請點擊下方按鈕，對著麥克風盡情抱怨。<br>講完後再點擊一次結束。</p>
+      
+      <button id="recordBtn" class="btn btn-record" onclick="toggleRecord()">🎤 點擊開始錄音</button>
+      <div id="recordStatus" style="margin-top:20px; color:#FF5A00; display:none; font-weight: 900; letter-spacing: 1px;">正在聆聽你的不爽... 再次點擊結束</div>
+      <div id="transcriptPreview" style="margin-top:20px; color:#F5F0EA; font-size: 16px; font-style: italic; min-height: 50px; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px;"></div>
+    </div>
+
+    <!-- Screen 3: Processing -->
+    <div id="screen-processing" class="screen">
+      <h1 style="color:#A67C52; text-shadow:none;">靈魂抽取中...</h1>
+      <p>正在將你的抱怨<br>提煉成純粹的叛逆精華...</p>
+      <div class="visualizer">
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      </div>
+    </div>
+
+    <!-- Screen 4: Incoming Call -->
+    <div id="screen-call" class="screen">
+      <div class="call-avatar"></div>
+      <h1 style="color:#FF5A00; font-size: 28px;">黑羊分身 來電</h1>
+      <p style="margin-bottom: 40px; color: #A67C52; font-weight:bold;">Incoming Call...</p>
+      <button class="btn" style="background:#FF5A00; border-color:#000; color:#000; border-radius: 50px; box-shadow: 0 0 20px rgba(255,90,0,0.5);" onclick="acceptCall()">📞 接聽電話</button>
+    </div>
+
+    <!-- Screen 5: Joke Playback -->
+    <div id="screen-playback" class="screen">
+      <h1 style="color:#A67C52; font-size: 20px; text-shadow:none;">通話中 00:<span id="timer">00</span></h1>
+      
+      <div class="chat-bubble">
+        <p id="joke-text">...</p>
+      </div>
+      
+      <div class="visualizer" style="margin-top: 30px; opacity: 0.5;">
+        <div class="bar" style="background:#FF5A00;"></div><div class="bar" style="background:#A67C52;"></div><div class="bar" style="background:#FF5A00;"></div><div class="bar" style="background:#A67C52;"></div><div class="bar" style="background:#FF5A00;"></div>
+      </div>
+      
+      <button class="btn" style="background:#F5F0EA; color:#000; margin-top: auto; border-radius: 50px;" onclick="navShare()">掛斷並領取優惠 🎁</button>
+    </div>
+
+    <!-- Screen 6: Share & Coupon -->
+    <div id="screen-share" class="screen">
+      <h1 style="color:#FF5A00; text-shadow: 2px 2px 0px #000;">惡作劇完成！</h1>
+      <p style="font-size: 14px; margin-bottom: 10px;">這就是你不敢說出口的真相：</p>
+      
+      <div style="background:#F5F0EA; border:3px solid #000; padding:15px; border-radius:10px; margin-bottom:20px; position:relative;">
+        <button onclick="replayJoke()" style="position:absolute; top:-15px; right:-15px; background:#FF5A00; border:2px solid #000; border-radius:50%; width:40px; height:40px; cursor:pointer; box-shadow: 2px 2px 0px #A67C52; font-size: 18px; z-index: 10;">🔊</button>
+        <span id="share-joke-text" style="color:#000; font-weight:700; font-size:15px;"></span>
+      </div>
+      
+      <div class="coupon">
+        <h3 style="margin:0 0 10px 0; color:#A67C52;">🎉 叛逆者專屬補給 🎉</h3>
+        <p style="margin:0; font-size: 15px; color: #F5F0EA;">憑截圖與暗號 <strong style="color:#FF5A00; font-size:18px; display:block; margin:5px 0;">#SkrewTheRules</strong><br>至全台迷客夏點『微醺秘蜜』<br>即享專屬黑羊升級優惠！</p>
+      </div>
+
+      <button class="btn" style="background: #FF5A00; color:#000; border-radius: 50px;" onclick="shareResult()">📲 分享你的荒謬</button>
+      <button class="btn" style="background: transparent; color:#A67C52; border-color:#A67C52; margin-top: 15px; box-shadow:none;" onclick="resetApp()">🔄 再抱怨一次</button>
+    </div>
+
+  </div>
+
+  <script>
+    let isRecording = false;
+    let recognition;
+    let finalTranscript = "";
+    let generatedJoke = "";
+    let timerInterval;
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      recognition = new SpeechRecognition();
+      recognition.lang = 'zh-TW';
+      recognition.continuous = true;
+      recognition.interimResults = true;
+
+      recognition.onresult = function(event) {
+        let interimTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript;
+          } else {
+            interimTranscript += event.results[i][0].transcript;
+          }
+        }
+        document.getElementById('transcriptPreview').innerText = finalTranscript + interimTranscript;
+      };
+      
+      recognition.onerror = function(event) {
+        document.getElementById('transcriptPreview').innerText = "⚠️ [語音錯誤] " + event.error;
+        console.error("Speech recognition error", event.error);
+        if (isRecording) toggleRecord();
+      };
+    } else {
+      alert("你的瀏覽器不支援 Web Speech API，請使用 Google Chrome。");
+    }
+
+    function nav(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function toggleRecord() {
+      if (!isRecording) {
+        startRecord();
+      } else {
+        stopRecord();
+      }
+    }
+
+    function startRecord() {
+      isRecording = true;
+      finalTranscript = "";
+      document.getElementById('transcriptPreview').innerText = "";
+      
+      if (recognition) {
+        try { recognition.start(); } catch(e) {}
+      }
+
+      const btn = document.getElementById('recordBtn');
+      const status = document.getElementById('recordStatus');
+      btn.classList.add('recording');
+      btn.innerText = "🛑 點擊結束錄音";
+      status.style.display = "block";
+    }
+
+    function stopRecord() {
+      isRecording = false;
+      
+      if (recognition) {
+        try { recognition.stop(); } catch(e) {}
+      }
+
+      const btn = document.getElementById('recordBtn');
+      btn.classList.remove('recording');
+      btn.innerText = "🎤 點擊開始錄音";
+      document.getElementById('recordStatus').style.display = "none";
+      
+      nav('screen-processing');
+      
+      setTimeout(() => {
+        generateDynamicJoke();
+        nav('screen-call');
+      }, 3000);
+    }
+
+    function generateDynamicJoke() {
+      let speech = finalTranscript.trim() || document.getElementById('transcriptPreview').innerText.trim();
+      
+      if (speech.length > 0) {
+        const intros = [
+          `聽著，聽到你靠北「${speech}」，我真的是歸剛欸。`,
+          `你說「${speech}」？這種蝦皮等級的煩惱也敢拿來吵我？`,
+          `「${speech}」？你這乖寶寶人設是要演到初一十五嗎。`,
+          `抱怨「${speech}」？我看你是吃飽太閒，欠教訓。`,
+          `我聽到了，「${speech}」。身為你的黑羊分身，我決定出手處理這場鬧劇。`,
+          `還在糾結「${speech}」？你的人生真的是又可憐又好笑。`,
+          `「${speech}」？這種小事，我看你是欠酒精超渡。`,
+          `你說「${speech}」？這種社畜的悲鳴，我聽了都想幫你點首拔蘿蔔。`,
+          `「${speech}」？少在那邊哭么，看看我都背著你做了什麼好事。`,
+          `為了懲罰你因為「${speech}」在這邊懷疑人生，我擅自行動了。`,
+          `「${speech}」？聽你在那邊畫唬爛，我都想幫你報名金馬獎最佳苦情主角了。`,
+          `靠北「${speech}」？你這抗壓性真的是紙糊的欸。`,
+          `「${speech}」？聽到這句我拳頭都硬了。`,
+          `你還在那邊「${speech}」？真想用愛的小手給你扒蕊去。`,
+          `「${speech}」？這種幼稚園等級的抱怨，你是沒喝過社會的毒打嗎？`
+        ];
+        
+        const actions = [
+          `我剛才駭進公司群組，幫你傳了一張你翻白眼配上『老子不幹了』的長輩圖給老闆。`,
+          `我把你明天重要的提案簡報，全部換成了王彩樺的保庇 MV 截圖。`,
+          `我已經幫你在蝦皮下單了三噸的花生醬，貨到付款，地址寫你公司。`,
+          `我剛把你所有的定存解約，拿去買了五十座會發光的電子花車，明天停你家門口。`,
+          `我用你的信用卡，贊助了樓下廟會整整一個月的鋼管辣妹秀。`,
+          `我幫你把所有的股票都賣了，拿去買『微醺秘蜜』，你現在是迷客夏的地下大股東。`,
+          `我剛才發 Line 給你所有的前任，說你其實一直暗戀他們現任的婆婆。`,
+          `我把你的 Tinder 自介改成了「尋找願意陪我一起去北港迎媽祖的靈魂伴侶」。`,
+          `我幫你在臉書發佈了你要參選里長的宣言，政見是里民大會提供無限量 Skrewball。`,
+          `我已經聯絡了水泥師傅，明天一早就會把你家客廳填平改成釣蝦場。`,
+          `我剛幫你報名了廟口的吃炮竹大賽，還是地獄死神級別的。`,
+          `我把你家裡所有的左腳鞋子都拿去金爐燒了，未來你出門只能用跳的。`,
+          `我把你手機的鈴聲改成了『大悲咒』電音版，而且音量鎖死在最大。`,
+          `我剛把你最愛的衣服全部拿去跟紅龍果一起洗，現在你有一整櫃的芭比粉。`,
+          `我剛才打電話給你主管，用語音合成跟他說你被外星人抓走去種高麗菜了。`,
+          `我用你的名義加入了一個宣稱地球是三角形的奇怪陣頭。`,
+          `我把你家的門鎖密碼改成了圓周率後五十碼，今晚你就在門口餵蚊子吧。`,
+          `我剛幫你把租屋處的地址放到 PTT 上，說明天這裡發放免費的雞排與珍奶。`,
+          `我把你行事曆上所有的會議都改成了「去紫南宮拜拜求脫單」。`,
+          `我把你的 Netflix 觀看紀錄全洗成了『玫瑰瞳鈴眼』，還給你打了五星好評。`,
+          `我幫你報名了明天早上的公園土風舞大賽，還幫你訂做了一套螢光亮片裝。`,
+          `我把你網購的收件人名字全部改成了『在地角頭南霸天』，祝你超商取貨順利。`,
+          `我剛才把你 IG 上所有的照片都套上了『長輩圖早安』的濾鏡。`,
+          `我把你下個月的房租拿去買了一整櫃的明星花露水。`,
+          `我幫你跟公司請了假，理由是你被阿嬤附身，現在要去大甲媽祖繞境。`,
+          `我把你電腦的桌面換成了韓國瑜的寫真集，而且設定無法更改。`,
+          `我剛用你的名義，發誓如果明天沒下雨，你就要去台北車站前裸奔跳八家將。`,
+          `我把你車子的導航語音全部換成了飆髒話的台語阿伯。`,
+          `我剛幫你買了兩百顆檳榔，地址填了你前男友的家。`,
+          `我把你 Spotify 的推薦歌單全換成了地下電台的賣藥廣播。`
+        ];
+        
+        const ctas = [
+          `現在，立刻滾去買一杯 Skrewball 慶祝你的自由！`,
+          `在世界毀滅前，先去迷客夏點一杯微醺秘蜜壓壓驚吧。`,
+          `去喝杯 Skrewball 釋放你的靈魂吧，剩下的爛攤子你自己收！`,
+          `不用謝我，快帶上 Skrewball 去跑吧！`,
+          `趁現在還有時間，快去喝杯迷客夏聯名特調享受最後的平靜吧！`,
+          `拿瓶 Skrewball 準備迎接你的新生活吧！萬聖節快樂！`,
+          `與其在家崩潰，不如去迷客夏帶走一杯黑羊專屬特調。`,
+          `不管明天的你要面對什麼，今晚先來杯 Skrewball 壓壓驚！`,
+          `還不快點去迷客夏弄杯特調來喝，不然我等一下連你家冷氣都拆了。`,
+          `這點出息，還不去灌兩杯 Skrewball 讓自己清醒一點。`
+        ];
+
+        const intro = intros[Math.floor(Math.random() * intros.length)];
+        const action = actions[Math.floor(Math.random() * actions.length)];
+        const cta = ctas[Math.floor(Math.random() * ctas.length)];
+        
+        generatedJoke = `${intro}${action}${cta}`;
+      } else {
+        generatedJoke = "警告！你剛才連一個字都不敢吭聲，乖寶寶面具戴太緊了吧。我受不了你那無聊的作息，所以我剛用你的信用卡買了100罐花生醬威士忌，不用謝，今晚去狂歡吧！";
+      }
+    }
+
+    function acceptCall() {
+      nav('screen-playback');
+      
+      let i = 0;
+      document.getElementById('joke-text').innerText = "";
+      function typeWriter() {
+        if (i < generatedJoke.length) {
+          document.getElementById('joke-text').innerHTML += generatedJoke.charAt(i);
+          i++;
+          setTimeout(typeWriter, 60);
+        }
+      }
+      typeWriter();
+
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(generatedJoke);
+        utterance.lang = 'zh-TW';
+        utterance.pitch = 0.2; 
+        utterance.rate = 1.15; 
+        setTimeout(() => { window.speechSynthesis.speak(utterance); }, 100);
+      }
+
+      let sec = 0;
+      timerInterval = setInterval(() => {
+        sec++;
+        document.getElementById('timer').innerText = sec < 10 ? "0" + sec : sec;
+      }, 1000);
+    }
+
+    function replayJoke() {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(generatedJoke);
+        utterance.lang = 'zh-TW';
+        utterance.pitch = 0.2; 
+        utterance.rate = 1.15; 
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    function navShare() {
+      clearInterval(timerInterval);
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      document.getElementById('share-joke-text').innerText = `「${generatedJoke}」`;
+      nav('screen-share');
+    }
+
+    function shareResult() {
+      if (navigator.share) {
+        navigator.share({
+          title: 'Skrewball 萬聖節黑羊來電',
+          text: '聽聽我的黑羊分身說了什麼荒謬的話！立刻點擊釋放你的分身，還能領取迷客夏限定調酒優惠券！🍸💀',
+          url: window.location.href
+        }).catch(console.error);
+      } else {
+        alert("你的設備不支援自動分享，請截圖或複製網址傳給朋友！");
+      }
+    }
+
+    function resetApp() {
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      if (recognition) { try { recognition.abort(); } catch(e) {} }
+      isRecording = false;
+      clearInterval(timerInterval);
+      document.getElementById('timer').innerText = "00";
+      nav('screen-home'); // 回到 Intro 頁面 (原本的畫面1)
+    }
+  </script>
+</body>
+</html>
